@@ -31,7 +31,18 @@ const resolvers = {
             if (!products || products.length === 0) {
               throw new Error('No products found');
             }
-    
+            products = products.map(product => {
+              return {
+                id: product._id,
+                name: product.name,
+                description: product.description,
+                image: product.image,
+                price: product.price,
+                category: product.category,
+                avgRating: product.avgRating
+              }
+            });
+          //  console.log(products);
             return products;
           } catch (error) {
             console.error(error);
@@ -42,6 +53,7 @@ const resolvers = {
         getProductById: async (_, { productId }) => {
           try {
             const product = await Product.findById(productId);
+            console.log(productId);
             if (!product) {
               throw new Error('Product not found');
             }
@@ -51,59 +63,71 @@ const resolvers = {
             throw new Error('Failed to fetch product');
           }
         },
-
-        getUserDetails: async (_, { userId }) => {
+        getAllProductIds: async () => {
           try {
-        
-            let user = await User.findById(userId);
-            if (!user) {
-              return "User not found";
+            const products = await Product.find({}, "_id");
+            if (!products || products.length === 0) {
+              return 'No products found';
             }
-            return user.email;
-          } catch (error) {
-            console.error("Error getting user details:", error);
-            throw new Error("Internal server error");
+            const ids = products.map(product => product._id);
+            return ids;
+          }
+            // res.json(products);
+           catch (error) {
+            console.log("h3");
+            throw new Error('Failed to fetch product');
           }
         },
 
+        // getUserDetails: async (_, { email }) => {
+        //   try {
         
-        getAllOrders:async(_, { userId }) => { 
+        //     let user = await User.findOne({email});
+        //     if (!user) {
+        //       return "User not found";
+        //     }
+        //     return user.email;
+        //   } catch (error) {
+        //     console.error("Error getting user details:", error);
+        //     throw new Error("Internal server error");
+        //   }
+        // },
+
+        getAllOrders:async(_, { email }) => { 
           try {       
-            const user = await User.findById(userId);
+            const user = await User.findOne({email});
             if (!user) {
-              return "User not found";
+              throw new Error("User not found");
             }
             const orders = user.orders;
             return orders;
           } catch (error) {
-            console.error("Error fetching user orders:", error);
-            return "Server Error";
+            // console.error("Error fetching user orders:", error);
+            throw new Error("Failed to fetch user order");
           }
       },
 
-      getUserCart: async (_, { userId }) => {
+      getUserCart: async (_, { email }) => {
         try {
-        const user = await User.findById(userId);
-    
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
+          const user = await User.findOne({ email });
+          if (!user) {
+            throw new Error("User not found");
+          }
+          const cartItems = user.cart;
+          return cartItems;
+        } catch (error) {
+          console.error("Error fetching user cart:", error);
+          throw new Error("Failed to fetch user cart");
         }
-    
-        const cartItems = user.cart;
-       return cartItems;
-      } catch (error) {
-        console.error("Error fetching user cart:", error);
-         return "Server Error" ;
-      }
-    },
-    
+      },
     },
 
   Mutation: { 
     login: async (_, {email,password}) =>{
       try {
         let user = await User.findOne({ email });
-    
+  
+        console.log(98);
         // If user doesn't exist, create a new user
         if (!user) {
           const hashedPassword = await bcrypt.hash(password, 10);
@@ -121,18 +145,16 @@ const resolvers = {
         // Generate JWT token
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
         return ({
-          success: true,
-          message: "Login Done",
           user: user,
-          token: token,
+          token: token
         });
       } catch (error) {
         console.error(error);
         throw new Error('Failed to Login');
       }
     },
-    addToCart: async (_, { productId, userId }) => {
-      const user = await User.findById(userId);
+    addToCart: async (_, { productId, email }) => {
+      const user = await User.findOne({email});
 
       if (!user.cart.includes(productId)) {
         user.cart.push(productId);
@@ -141,8 +163,8 @@ const resolvers = {
       await user.save();
       return "Added successfully!";
     },
-    deleteFromCart: async (_, { productId, userId }) => {
-      const user = await User.findById(userId);
+    deleteFromCart: async (_, { productId, email }) => {
+      const user = await User.findOne({email});
       const index = user.cart.indexOf(productId);
 
       if (index > -1) {
@@ -153,8 +175,8 @@ const resolvers = {
       return "Deleted successfully!";
     },
 
-    placeOrder: async (_, { userId }) => {
-      const user = await User.findById(userId);
+    placeOrder: async (_, { email }) => {
+      const user = await User.findOne({email});
       user.orders.push(...user.cart);
       user.cart = [];
       await user.save();

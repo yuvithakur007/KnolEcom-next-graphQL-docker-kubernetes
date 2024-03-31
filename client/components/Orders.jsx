@@ -1,38 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import styles from "../styles/order.module.css";
 import { useDarkMode } from '../context/DarkModeContext';
+
+import client from "../src/apollo-client";
+import { GET_ALL_ORDER,GET_SPECIFIED_PRODUCT} from "../src/services/quries";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [orderProducts, setOrderProducts] = useState([]);
   const {state} = useDarkMode();
+
   useEffect(() => {
-    const fetchCartItems = async () => {
+    const fetchOrderItems = async () => {
+      const email = localStorage.getItem("email"); 
+      console.log("Email:", email)      
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:3030/api/orders`, {
-          headers: {
-            Authorization: token,
-          },
+        const { data } = await client.query({
+          query: GET_ALL_ORDER,
+          variables: { email },
         });
-        setOrders(response.data);
+        setOrders(data.getAllOrders);
+        console.log("Order items:", data.getAllOrders);
       } catch (error) {
-        console.error('Error fetching cart items:', error);
+        console.error("Error fetching orders", error);
       }
     };
 
 
-    const fetchProduct = async (id) => {
-            try {
-              const response = await axios.get(
-                `http://localhost:3030/api/products/${id}`
-              );
-              return response.data;
-            } catch (error) {
-              console.error("Error fetching product:", error);
-            }
-          };
+    const fetchProduct = async (productId) => {
+      const { data } = await client.query({
+        query: GET_SPECIFIED_PRODUCT,
+        variables: { productId }
+      });
+      return data.getProductById;
+    };
 
     const fetchAllOrderProducts = async () => {
       try {
@@ -40,11 +41,11 @@ const Orders = () => {
         const products = await Promise.all(productPromises);
         setOrderProducts(products);
       } catch (error) {
-        console.error("Error fetching cart products:", error);
+        console.error("Error fetching products:", error);
       }
     };
   
-    fetchCartItems();
+    fetchOrderItems();
     fetchAllOrderProducts();
   }, [orders]);
 

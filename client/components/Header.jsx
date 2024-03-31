@@ -13,28 +13,14 @@ const Header = () => {
     const userLoggedIn = localStorage.getItem("token") !== null;
     setIsLoggedIn(userLoggedIn);
     if (userLoggedIn) {
-      fetchUserDetails();
+      setUserData(localStorage.getItem("userName"));
     }
   }, []);
 
-  const fetchUserDetails = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3030/api/user/userDetails", {
-        method: "GET",
-        headers: {
-          Authorization: token,
-        },
-      });
-      const userData = await response.json();
-      setUserData(userData);
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
-  };
-
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("email");
     setIsLoggedIn(false);
     setUserData(null);
   };
@@ -68,7 +54,9 @@ const Header = () => {
         <button  className={styles.loginButton} onClick={() => setToggle(!toggle)}>
           {isLoggedIn ? (
             <>
-              <div>{userData ? userData?.user?.email.split("@")[0] : null}</div>
+              <div>
+                {userData}
+              </div>
               {toggle && (
                 <div className={styles.logoutButton}>
                   <button onClick={handleLogout}>Logout</button>

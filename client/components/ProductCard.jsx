@@ -3,11 +3,12 @@ import Link from "next/link";
 import styles from "../styles/products.module.css";
 
 export default function ProductCard(props) {
+  //console.log('Props',props);
   return (
     <div className={styles.productListContainer}>
       <div className={styles.productList}>
         <Link href={`/product/${props.id}`} className={styles.productLink}>
-          <div key={props._id} className={styles.productCard}>
+          <div key={props.id} className={styles.productCard}>
             
             <img
               src={props.image}

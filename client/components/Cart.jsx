@@ -1,36 +1,33 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import style from "../styles/cart.module.css"; 
-import { useDarkMode } from '../context/DarkModeContext';
+import style from "../styles/cart.module.css";
+import { useDarkMode } from "../context/DarkModeContext";
+import { useMutation } from "@apollo/client";
+import client from "../src/apollo-client";
+import { GET_USER_CART, GET_SPECIFIED_PRODUCT } from "../src/services/quries";
+
+import { DELETE_FROM_CART, PLACE_ORDER} from "@/src/services/mutations";
+
 const Cart = () => {
-  const { state } = useDarkMode(); 
+  const { state } = useDarkMode();
 
   const [cartItems, setCartItems] = useState([]);
   const [cartProducts, setCartProducts] = useState([]);
 
+  const [deleteFromCart] = useMutation(DELETE_FROM_CART);
+  const [placeOrder] = useMutation(PLACE_ORDER);
+
   useEffect(() => {
     const fetchCartItems = async () => {
+      const email = localStorage.getItem("email");
       try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`http://localhost:3030/api/carts`, {
-          headers: {
-            Authorization: token,
-          },
+        const { data } = await client.query({
+          query: GET_USER_CART,
+          variables: { email },
         });
-        setCartItems(response.data);
+        setCartItems(data.getUserCart);
       } catch (error) {
-        console.error("Error fetching cart items:", error);
-      }
-    };
-
-    const fetchProduct = async (id) => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3030/api/products/${id}`
-        );
-        return response.data;
-      } catch (error) {
-        console.error("Error fetching product:", error);
+        console.error("Error fetching products", error);
       }
     };
 
@@ -44,62 +41,78 @@ const Cart = () => {
       }
     };
 
+    const fetchProduct = async (productId) => {
+      const { data } = await client.query({
+        query: GET_SPECIFIED_PRODUCT,
+        variables: { productId },
+      });
+      return data.getProductById;
+    };
+
     fetchCartItems();
     fetchAllCartProducts();
   }, [cartItems]);
 
   const handleDeleteItem = async (itemId) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.delete(`http://localhost:3030/api/carts/delete/${itemId}`, {
-        headers: {
-          Authorization: token,
-        },
-      });
+    const email = localStorage.getItem("email");
   
-      if (response.status === 200) {
-        const data = response.data;
-        alert(data.message); 
-        console.log("Item deleted successfully");
-      } else {
-        throw new Error('Failed to delete item from cart');
+    if (localStorage.getItem("email")) {
+      try {
+        const { data } = await deleteFromCart({
+          variables: {
+            productId: itemId,
+            email: email,
+          },
+        });
+  
+        const mssg = data.deleteFromCart;
+        if (mssg === "Deleted successfully!") {
+          alert(mssg);
+          // Refresh cart items without reloading the page
+          fetchCartItems();
+        } else {
+          throw new Error("Failed to delete item from cart");
+        }
+      } catch (error) {
+        console.error("Error deleting item from cart:", error);
       }
-    } catch (error) {
-      console.error("Error deleting item from cart:", error);
     }
   };
   
   const handlePlaceOrder = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(`http://localhost:3030/api/orders/place-order`, null, {
-        headers: {
-          Authorization: token,
-        },
-      });
+    const email = localStorage.getItem("email");
   
-      if (response.status === 200) {
-        const data = response.data;
-        alert(data.message); 
-        console.log("Order placed successfully");
-      } else {
-        throw new Error('Failed to place order');
+    if (localStorage.getItem("email")) {
+      try {
+        const { data } = await placeOrder({
+          variables: {
+            email: email,
+          },
+        });
+  
+        const mssg = data.placeOrder;
+        if (mssg === "Order placed successfully!") {
+          alert(mssg);
+          // Refresh cart items without reloading the page
+          fetchCartItems();
+        } else {
+          throw new Error("Failed to place order");
+        }
+      } catch (error) {
+        console.error("Error placing order:", error);
       }
-    } catch (error) {
-      console.error("Error placing order:", error);
     }
-  };
+  }
   
-
   return (
-    <div className={state.darkMode ? style.darkMode : style.lightMode}> 
-      <div className={style.cartContainer}> 
+    <div className={state.darkMode ? style.darkMode : style.lightMode}>
+      <div className={style.cartContainer}>
         <h1>Cart</h1>
         {cartProducts.length > 0 ? (
           <div className={style.cartProducts}>
-            <table className={style.cartTable}> 
+            <table className={style.cartTable}>
               <thead>
-                <tr className={style.cartTableHeader}> 
+                <tr className={style.cartTableHeader}>
                   <th>Name</th>
                   <th>Price</th>
                   <th>Action</th>
@@ -107,19 +120,22 @@ const Cart = () => {
               </thead>
               <tbody>
                 {cartProducts.map((item) => (
-                  <tr key={item._id} className={style.cartItem}>
+                  <tr key={item.id} className={style.cartItem}>
                     <td style={{ paddingRight: "0rem" }}>
-                      <img className={style.cartItemImage}
+                      <img
+                        className={style.cartItemImage}
                         src={item.image}
                         alt={item.name}
                       />
                       <br />
                       {item.name}
                     </td>
-
                     <td>${item.price}</td>
                     <td>
-                      <button className={style.cartButton} onClick={() => handleDeleteItem(item._id)}>
+                      <button
+                        className={style.cartButton}
+                        onClick={() => handleDeleteItem(item.id)}
+                      >
                         Delete
                       </button>
                     </td>
@@ -127,7 +143,7 @@ const Cart = () => {
                 ))}
               </tbody>
             </table>
-            <div className={style.totalAmount}> 
+            <div className={style.totalAmount}>
               <p>
                 Total: $
                 {cartProducts.reduce(
@@ -136,12 +152,13 @@ const Cart = () => {
                 )}
               </p>
             </div>
-            <button className={style.cartButton} onClick={handlePlaceOrder}>Place Order</button>
+            <button className={style.cartButton} onClick={handlePlaceOrder}>
+              Place Order
+            </button>
           </div>
         ) : (
           <div>
-               <p style={{ margin: "1.5rem" }}>No products in the cart.</p>
-     
+            <p style={{ margin: "1.5rem" }}>No products in the cart.</p>
           </div>
         )}
       </div>

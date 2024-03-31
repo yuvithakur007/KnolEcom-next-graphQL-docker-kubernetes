@@ -3,9 +3,7 @@ import ProductCard from "./ProductCard";
 import { useDarkMode } from "@/context/DarkModeContext";
 // import axios from "axios";
 import styles from "../styles/products.module.css";
-
-import client from "@/apollo-client";
-
+import client from "../src/apollo-client";
 import { GET_ALL_PRODUCTS} from "../src/services/quries";
 
 const ProductList = (props) => {
@@ -16,27 +14,17 @@ const ProductList = (props) => {
   const { search, category, sort } = props;
 
   useEffect(() => {
+    // console.log("data1");
     const fetchProducts = async () => {
       try {
-
         const { data } = await client.query({
           query: GET_ALL_PRODUCTS,
           variables: { category, sort },
         });
-      return setProducts(data.getAllProducts);
-
-        // const response = await axios.get(
-        //   "http://localhost:4000/api/products",
-        //   {
-        //     params: {
-        //       category: category,
-        //       sort: sort,
-        //     },
-        //   }
-        // );
-        // setProducts(response.data);
+        // console.log("data2", data.getAllProducts);
+         setProducts(data.getAllProducts);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching products", error);
       }
     };
     fetchProducts();
@@ -65,7 +53,7 @@ const ProductList = (props) => {
               name={product.name}
               avgRating={product.avgRating}
               price={product.price}
-              id={product._id}
+              id={product.id}
             />
           </div>
         ))}

@@ -1,4 +1,6 @@
 import "@/styles/globals.css";
+import client  from "../src/apollo-client";
+import { ApolloProvider } from '@apollo/client';
 import React, { useState, useReducer, useEffect } from 'react';
 import { DarkModeContext, reducer } from '../context/DarkModeContext'
 import Header from "@/components/Header";
@@ -45,9 +47,11 @@ export default function App({ Component, pageProps }) {
   };
 
   return (
+    <ApolloProvider client={client}>
     <DarkModeContext.Provider value={{state, dispatch}}>
       <Header />
       <Component {...componentProps} />
     </DarkModeContext.Provider>
+    </ApolloProvider>
   );
 }

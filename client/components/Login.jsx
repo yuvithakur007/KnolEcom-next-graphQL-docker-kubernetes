@@ -1,30 +1,44 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import styles from '../styles/login.module.css';
 import { useDarkMode } from '../context/DarkModeContext'; 
+import { useMutation } from '@apollo/client';
+import { LOGIN } from '@/src/services/mutations';
+import {router} from  "next/router";
 
 const Login = () => {
   const { state } = useDarkMode();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const [login] = useMutation(LOGIN);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.error('hey2');
     try {
-      const response = await axios.post('http://localhost:3030/api/user/login', {
-        email,
-        password,
+      const { data } = await login({
+        variables: {
+          email,
+          password
+        },
       });
-      localStorage.setItem("token", response.data.token);
-      if (window.confirm('LogIn Successfull')) {
-        window.location.href = '/';
-      } else {
-        window.location.href = '/';
-      }
+
+      const { token } = data.login;
+      // console.log('token:', token);
+      localStorage.setItem('token', token);
+
+      const userName= email.split("@")[0];
+      // console.log('userName:', userName);
+      localStorage.setItem('userName', userName);
+
+      localStorage.setItem('email', email);
+
+      alert('Login successful!'); router.push('/');
+
     } catch (error) {
-      // console.error('Error logging in:', error);
-      alert('Invalid email or password');
+      console.log(email,password);
+      console.error('hey3');
+      console.error('Error logging in:', error);
     }
   };
 

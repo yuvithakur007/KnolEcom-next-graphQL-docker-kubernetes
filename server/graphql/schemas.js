@@ -25,7 +25,6 @@ const typeDefs = gql`
 
   type CartItem {
     productId: ID!
-    # quantity: Int!
   }
 
   type Cart {
@@ -42,17 +41,18 @@ const typeDefs = gql`
 
    type Query {
     getProductById(productId: ID!): Product
+    getAllProductIds: [String]!
     getAllProducts(category: String, sort: String): [Product]
-    getAllOrders(userId: ID!): [String]
-    getUserCart(userId: ID!): [String]
-    getUserDetails(userId:ID!): String
+    getAllOrders(email: String!): [String]
+    getUserCart(email: String!): [String]
+    getUserDetails(email:String!): String
   }
 
    type Mutation {
-    login(email: String!, password: String!): LoginPayload
-    addToCart(productId: ID!, userId: ID!): String!
-    deleteFromCart(productId: ID!, , userId: ID!): String! 
-    placeOrder(userId: ID!): String!
+    login(email: String!, password: String!): LoginPayload!
+    addToCart(productId: ID!, email: String!): String!
+    deleteFromCart(productId: ID!, email: String!): String! 
+    placeOrder(email: String!): String!
   }
 `;
 

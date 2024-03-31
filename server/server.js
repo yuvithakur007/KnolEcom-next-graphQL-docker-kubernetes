@@ -1,17 +1,18 @@
+const express = require("express");
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
+
 const typeDefs = require("./graphql/schemas");
 const resolvers = require("./graphql/resolvers");
 
-const express = require("express");
 const cors = require("cors");
+
 const mongoose = require("mongoose");
-
 const dotenv = require("dotenv");
-
-// Initial configuration
 dotenv.config();
+
 const app = express();
+app.use(cors());
 
 // Apollo Server setup for GraphQL
 const server = new ApolloServer({ typeDefs, resolvers });
@@ -20,16 +21,17 @@ async function startApolloServer() {
   await server
     .start()
     .then(
-      console.log(`🚀 Apollo Server ready at http://localhost:4000/graphql`)
+      console.log(`🚀 Apollo Server ready at http://localhost:4000`)
     );
 
   app.use(
-    "/graphql",
+    "/",
     cors(),
     express.json(),
     express.urlencoded({ extended: true }),
     expressMiddleware(server, {
-      context: async ({ req }) => ({ token: req.headers.token }),
+      context: async ({ req }) => {
+        return { token: req.headers.token }},
     })
   );
 

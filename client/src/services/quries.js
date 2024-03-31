@@ -14,63 +14,51 @@ export const GET_ALL_PRODUCTS = gql`
   }
 `;
 
-// export const LOGIN = gql`
-//   query Login($email: String!, $password: String!) {
-//     loginUser(email: $email, password: $password) {
-//         userName
-//         sessionToken
-//         message
-//     }
-//   }
-// `;
-
-
-// export const GET_SPECIFIED_PRODUCT = gql`
-//   query GetSpecifiedProduct($productId: ID!) {
-//     getProductById(productId: $productId) {
-//         name
-//         price
-//         description
-//         rating
-//         image
-//         category
-//         id
-//     }
-//   }
-// `;
-
-// export const GET_CART = gql`
-//   query GetCart {
-//     getCart {
-//         product {
-//             name
-//             id
-//             price
-//             image
-//         }
-//     }
-//   }
-// `;
-
-// export const GET_ORDERS = gql`
-//   query GetOrders {
-//     getOrders {
-//         id
-//         totalPrice
-//         products {
-//             name
-//             price
-//             image
-//         }
-//     }
-//   }
-// `;
+export const GET_ALL_PRODUCT_IDS = gql`
+  query GetProductIds {
+    getAllProductIds
+  }
+`;
 
 
 
-// export const GET_ALL_PRODUCT_IDS = gql`
-//   query GetProductIds {
-//     getAllProductIds
-//   }
-// `;
+export const GET_SPECIFIED_PRODUCT = gql`
+  query GetSpecifiedProduct($productId: ID!) {
+    getProductById(productId: $productId) {
+        name
+        price
+        description
+        avgRating
+        image
+        category
+        id
+    }
+  }
+`;
 
+export const Get_Product_By_Id = gql`
+  query GetProductById($productId: ID!) {
+    getProductById(productId: $productId) {
+        name
+        price
+        description
+        rating
+        image
+        category
+        id
+    }
+  }
+`;
+
+
+export const GET_USER_CART = gql`
+  query GetUserCart($email : String!) {
+    getUserCart (email: $email) 
+  }
+`;
+
+export const GET_ALL_ORDER = gql`
+  query GetAllOrders($email : String!) {
+    getAllOrders (email: $email) 
+  }
+`;

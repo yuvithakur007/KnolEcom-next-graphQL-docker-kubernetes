@@ -2,27 +2,33 @@ import React, { useState, useEffect } from "react";
 import styles from "../styles/details.module.css";
 import { useDarkMode } from "../context/DarkModeContext";
 
+import { useMutation } from '@apollo/client';
+import { ADD_TO_CART } from '@/src/services/mutations';
 
-const ProductDetails = ({ product }) => {
+
+const ProductDetails = ({ product, productId }) => {
   const { state } = useDarkMode();
 
+  const [addToCart] = useMutation(ADD_TO_CART);
+
   const handleClick = async (e) => {
+    console.log("Product ID:", productId);
+
     e.preventDefault();
+    const email = localStorage.getItem("email"); 
   
-    if (localStorage.getItem('token')) {
+    if (localStorage.getItem('email')) {
       try {
-        const response = await fetch("http://localhost:3030/api/carts/additem", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: localStorage.getItem("token"),
+        const { data } = await addToCart({
+          variables: {
+            productId,
+            email            
           },
-          body: JSON.stringify({ id: product._id }),
         });
-  
-        if (response.ok) {
-          const data = await response.json();
-          alert(data.message);
+
+        const mssg = data.addToCart; 
+        if (mssg === "Added successfully!") {
+          alert(mssg);
         } else {
           throw new Error('Failed to add item to cart');
         }
@@ -66,5 +72,7 @@ const ProductDetails = ({ product }) => {
     </div>
   );  
 };
+
+
 
 export default ProductDetails;
