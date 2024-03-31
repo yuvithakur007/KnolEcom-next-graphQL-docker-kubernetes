@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import style from "../styles/cart.module.css";
 import { useDarkMode } from "../context/DarkModeContext";
 import { useMutation } from "@apollo/client";
@@ -10,7 +9,6 @@ import { DELETE_FROM_CART, PLACE_ORDER} from "@/src/services/mutations";
 
 const Cart = () => {
   const { state } = useDarkMode();
-
   const [cartItems, setCartItems] = useState([]);
   const [cartProducts, setCartProducts] = useState([]);
 
@@ -68,6 +66,7 @@ const Cart = () => {
         const mssg = data.deleteFromCart;
         if (mssg === "Deleted successfully!") {
           alert(mssg);
+         window.location.reload();
         } else {
           throw new Error("Failed to delete item from cart");
         }
@@ -91,6 +90,7 @@ const Cart = () => {
         const mssg = data.placeOrder;
         if (mssg === "Order placed successfully!") {
           alert(mssg);
+          window.location.reload();
         } else {
           throw new Error("Failed to place order");
         }

@@ -57,6 +57,7 @@ const ProductDetails = () => {
         const mssg = data.addToCart;
         if (mssg === "Added successfully!") {
           alert(mssg);
+          window.location.reload();
         } else {
           throw new Error("Failed to add item to cart");
         }
@@ -69,6 +70,7 @@ const ProductDetails = () => {
         window.location.href = "/login";
       }
     }
+    return;
   };
   return (
     <div className={state.darkMode ? styles.darkMode : styles.lightMode}>
