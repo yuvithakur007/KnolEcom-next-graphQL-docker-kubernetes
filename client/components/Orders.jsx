@@ -12,15 +12,13 @@ const Orders = () => {
 
   useEffect(() => {
     const fetchOrderItems = async () => {
-      const email = localStorage.getItem("email"); 
-      console.log("Email:", email)      
+      const email = localStorage.getItem("email");   
       try {
         const { data } = await client.query({
           query: GET_ALL_ORDER,
           variables: { email },
         });
         setOrders(data.getAllOrders);
-        console.log("Order items:", data.getAllOrders);
       } catch (error) {
         console.error("Error fetching orders", error);
       }

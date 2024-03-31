@@ -4,25 +4,22 @@ import { useDarkMode } from "@/context/DarkModeContext";
 // import axios from "axios";
 import styles from "../styles/products.module.css";
 import client from "../src/apollo-client";
-import { GET_ALL_PRODUCTS} from "../src/services/quries";
+import { GET_ALL_PRODUCTS } from "../src/services/quries";
 
 const ProductList = (props) => {
   const { state } = useDarkMode();
-
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const { search, category, sort } = props;
 
   useEffect(() => {
-    // console.log("data1");
     const fetchProducts = async () => {
       try {
         const { data } = await client.query({
           query: GET_ALL_PRODUCTS,
           variables: { category, sort },
         });
-        // console.log("data2", data.getAllProducts);
-         setProducts(data.getAllProducts);
+        setProducts(data.getAllProducts);
       } catch (error) {
         console.error("Error fetching products", error);
       }
@@ -46,17 +43,23 @@ const ProductList = (props) => {
   return (
     <div className={state.darkMode ? styles.darkMode : styles.lightMode}>
       <div className={styles.productList}>
-        {filteredProducts.map((product) => (
-          <div className={styles.individualProductBox} key={product._id}>
-            <ProductCard
-              image={product.image}
-              name={product.name}
-              avgRating={product.avgRating}
-              price={product.price}
-              id={product.id}
-            />
-          </div>
-        ))}
+        {filteredProducts.map(
+          (
+            product,
+            index // Added index parameter
+          ) => (
+            <div className={styles.individualProductBox} key={index}>
+              {" "}
+              <ProductCard
+                image={product.image}
+                name={product.name}
+                avgRating={product.avgRating}
+                price={product.price}
+                id={product.id}
+              />
+            </div>
+          )
+        )}
       </div>
     </div>
   );

@@ -18,8 +18,6 @@ export async function getStaticPaths() {
       const paths = productIds.map((productId) => ({
           params: { Id: productId.toString() } 
       }));
-      
-    //   console.log(paths);
       return { paths, fallback: false };
   } catch (error) {
       console.error("Error fetching product IDs:", error);
@@ -29,7 +27,6 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const productId = params.Id;
-//   console.log(productId); 
   try {
       const { data } = await client.query({
           query: GET_SPECIFIED_PRODUCT,
@@ -37,7 +34,6 @@ export async function getStaticProps({ params }) {
       });
 
       const product = data.getProductById;
-     // console.log("Fetched product:", product); 
      return { 
         props: { 
           product,

@@ -68,8 +68,6 @@ const Cart = () => {
         const mssg = data.deleteFromCart;
         if (mssg === "Deleted successfully!") {
           alert(mssg);
-          // Refresh cart items without reloading the page
-          fetchCartItems();
         } else {
           throw new Error("Failed to delete item from cart");
         }
@@ -93,8 +91,6 @@ const Cart = () => {
         const mssg = data.placeOrder;
         if (mssg === "Order placed successfully!") {
           alert(mssg);
-          // Refresh cart items without reloading the page
-          fetchCartItems();
         } else {
           throw new Error("Failed to place order");
         }
