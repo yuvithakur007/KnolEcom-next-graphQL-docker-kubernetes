@@ -57,7 +57,7 @@ const ProductDetails = () => {
         const mssg = data.addToCart;
         if (mssg === "Added successfully!") {
           alert(mssg);
-          window.location.reload();
+          // window.location.reload();
         } else {
           throw new Error("Failed to add item to cart");
         }
