@@ -8,8 +8,8 @@ import ProductDetails from '../../components/ProductDetails.jsx';
 import client from "../../src/apollo-client.js";
 import { GET_ALL_PRODUCT_IDS, GET_SPECIFIED_PRODUCT } from "../../src/services/quries.js";
 
-export default function ProductDetailsPage({ product, id }) {
-    return <ProductDetails product={product} productId={id} />;
+export default function ProductDetailsPage({ product, productId }) {
+    return <ProductDetails product={product} productId={productId} />;
 }
 
 

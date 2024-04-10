@@ -121,7 +121,7 @@ const ProductDetails = ({ product, productId }) => {
   const [addToCart] = useMutation(ADD_TO_CART);
 
   const handleClick = async (e) => {
-    console.log("Product ID:", productId);
+    console.log(":", productId);
 
     e.preventDefault();
     const email = localStorage.getItem("email");
